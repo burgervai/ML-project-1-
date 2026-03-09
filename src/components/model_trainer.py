@@ -1,6 +1,9 @@
 import os
 import sys
 from dataclasses import dataclass
+
+from catboost import CatBoostRegressor
+from xgboost import XGBRegressor
 from src.exception import CustomException
 from src.logger import logging
 import pickle
@@ -53,6 +56,14 @@ class ModelTrainer:
                 "Gradient Boosting": GradientBoostingRegressor(),
                 "Linear Regression": LinearRegression(),
                 "AdaBoost Regressor": AdaBoostRegressor(),
+                "Ridge Regression": Ridge(),
+                "Lasso Regression": Lasso(),
+                "K-Neighbors Regressor": KNeighborsRegressor(),
+                "CATBOOSTING_CLASSIFIER":CatBoostRegressor(verbose=False),
+                "XGBRegressor": XGBRegressor(),
+                "svr":SVR(kernel='rbf'),
+                "ADA Boosting Classifier":AdaBoostRegressor(),
+            
             }
 
             model_report = self.evaluate_models(X_train, y_train, X_test, y_test, models)
@@ -63,6 +74,15 @@ class ModelTrainer:
             best_model = models[best_model_name]
 
             logging.info(f"Best model found: {best_model_name} with R2 Score: {best_model_score}")
+            
+            # Print best model to terminal
+            print("\n" + "="*60)
+            print("BEST MODEL DETAILS")
+            print("="*60)
+            print(f"Model Name: {best_model_name}")
+            print(f"R2 Score: {best_model_score}")
+            print(f"\nModel Object:\n{best_model}")
+            print("="*60 + "\n")
 
             if best_model_score < 0.6:
                 raise CustomException("No best model found", sys)

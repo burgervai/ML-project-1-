@@ -42,6 +42,7 @@ class DataIngestion:
         except Exception as e:
             logging.error("Error occured in data ingestion stage", exc_info=True)
             raise CustomException(e, sys)
+        
 
 if __name__ == "__main__":
     obj = DataIngestion()
@@ -52,4 +53,3 @@ if __name__ == "__main__":
     
     model_trainer = ModelTrainer()
     model_trainer.initiate_model_trainer(train_arr, test_arr)
-    
