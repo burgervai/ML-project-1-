@@ -68,21 +68,38 @@ class ModelTrainer:
 
             model_report = self.evaluate_models(X_train, y_train, X_test, y_test, models)
 
-            # Get best model score
+            # Print all individual model scores
+            print("ALL MODEL SCORES:")
+            for model_name, score in model_report.items():
+                print(f"{model_name}: R2 = {score}")
+
+            # Determine best individual model
             best_model_score = max(sorted(model_report.values()))
             best_model_name = list(model_report.keys())[list(model_report.values()).index(best_model_score)]
             best_model = models[best_model_name]
 
+            # Train voting ensemble on all estimators and evaluate
+            from sklearn.ensemble import VotingRegressor
+            ensemble = VotingRegressor(estimators=[(name, models[name]) for name in models])
+            ensemble.fit(X_train, y_train)
+            ensemble_score = r2_score(y_test, ensemble.predict(X_test))
+            print(f"Ensemble (VotingRegressor) R2 = {ensemble_score}")
+
+            # prefer ensemble if it outperforms best individual
+            if ensemble_score > best_model_score:
+                best_model_score = ensemble_score
+                best_model_name = "VotingRegressor"
+                best_model = ensemble
+
             logging.info(f"Best model found: {best_model_name} with R2 Score: {best_model_score}")
             
-            # Print best model to terminal
-            print("\n" + "="*60)
+            # Print best model to the console
             print("BEST MODEL DETAILS")
-            print("="*60)
+          
             print(f"Model Name: {best_model_name}")
             print(f"R2 Score: {best_model_score}")
             print(f"\nModel Object:\n{best_model}")
-            print("="*60 + "\n")
+          
 
             if best_model_score < 0.6:
                 raise CustomException("No best model found", sys)
