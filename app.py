@@ -5,7 +5,9 @@ import pickle
 
 app = Flask(__name__)
 
-
+# -----------------------------
+# Load the trained model
+# -----------------------------
 MODEL_PATH = "artifacts/model.pkl"
 try:
     with open(MODEL_PATH, "rb") as f:
@@ -14,16 +16,18 @@ except FileNotFoundError:
     model = None
     print(f"Warning: Model file not found at {MODEL_PATH}")
 
-
+# -----------------------------
+# Routes
+# -----------------------------
 @app.route("/")
 def home_page():
     """Landing page"""
-    return render_template("dex.html")
+    return render_template("index.html")  # Landing page
 
 @app.route("/form")
 def form_page():
     """Prediction form page"""
-    return render_template("home.html", results="")
+    return render_template("home.html", results="")  # Form page
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -32,7 +36,7 @@ def predict():
         return "Error: Model not loaded. Check artifacts/model.pkl", 500
 
     try:
-    
+        # Get form data
         data = {
             "gender": request.form.get("gender"),
             "race_ethnicity": request.form.get("ethnicity"),
@@ -55,7 +59,9 @@ def predict():
     except Exception as e:
         return f"Error: {e}", 500
 
-
+# -----------------------------
+# Run the app
+# -----------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
